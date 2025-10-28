@@ -3,11 +3,21 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Сначала зависимости
-COPY package.json ./
-RUN npm install --omit=dev
+# Сгенерируем package.json внутри образа и установим зависимости
+RUN printf '%s' \
+'{
+  "name": "bybit-proxy",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": {
+    "express": "4.19.2",
+    "node-fetch": "3.3.2"
+  }
+}' > package.json && npm install --omit=dev
 
-# Затем исходники
+# Копируем только исходник
 COPY server.js ./
 
 ENV NODE_ENV=production
